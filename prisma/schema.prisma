@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  password      String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  clients       Client[]
+}
+
+model Client {
+  id              String    @id @default(cuid())
+  fullName        String
+  phoneNumber     String?
+  brokerageFirm   String?
+  referralSource  String?
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  userId          String
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  investments     Investment[]
+  transactions    Transaction[]
+  cashPosition    Float     @default(0)
+}
+
+model Investment {
+  id              String    @id @default(cuid())
+  stockName       String
+  stockSymbol     String
+  quantityLots    Float
+  acquisitionCost Float
+  currentValue    Float?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  clientId        String
+  client          Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  transactions    Transaction[]
+}
+
+model Transaction {
+  id              String    @id @default(cuid())
+  type            String    // BUY, SELL
+  quantityLots    Float
+  pricePerLot     Float
+  totalAmount     Float
+  transactionDate DateTime  @default(now())
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  clientId        String
+  client          Client    @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  investmentId    String
+  investment      Investment @relation(fields: [investmentId], references: [id], onDelete: Cascade)
+}

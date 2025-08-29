@@ -37,6 +37,7 @@ Gain Payment, finansal danışmanların müşteri portföylerini, yatırımları
 - **Backend**: Next.js API Routes
 - **Veritabanı**: PostgreSQL (Prisma ORM)
 - **Kimlik Doğrulama**: NextAuth.js
+- **Konteynerizasyon**: Docker, Docker Compose
 
 ## Kurulum
 
@@ -45,8 +46,66 @@ Gain Payment, finansal danışmanların müşteri portföylerini, yatırımları
 - Node.js (v18 veya üzeri)
 - npm veya yarn
 - PostgreSQL veritabanı
+- Docker ve Docker Compose (konteynerize kurulum için)
 
-### Adımlar
+### Docker ile Kurulum
+
+1. Projeyi klonlayın:
+   ```bash
+   git clone <repo-url>
+   cd gainpayment
+   ```
+
+2. Docker konteynerlerini oluşturun ve başlatın:
+   ```bash
+   npm run docker:build
+   npm run docker:up
+   ```
+
+3. Uygulama http://localhost:3000 adresinde çalışacaktır.
+
+### Geliştirme Ortamında Kurulum
+
+1. PostgreSQL'i Docker ile başlatın (opsiyonel):
+   ```bash
+   docker-compose up db -d
+   ```
+
+2. Bağımlılıkları yükleyin:
+   ```bash
+   npm install
+   ```
+
+3. Prisma istemcisini oluşturun:
+   ```bash
+   npm run prisma:generate
+   ```
+
+4. Migrasyonları uygulayın:
+   ```bash
+   npx prisma migrate dev
+   ```
+
+5. Geliştirme sunucusunu başlatın:
+   ```bash
+   npm run dev
+   ```
+
+### Veritabanı Yönetimi
+
+Prisma Studio ile veritabanını görüntülemek için:
+
+```bash
+npm run prisma:studio
+```
+
+### Docker Komutları
+
+- Konteynerleri başlatmak: `npm run docker:up`
+- Konteynerleri durdurmak: `npm run docker:down`
+- Konteynerleri yeniden oluşturmak: `npm run docker:build`
+
+### Manuel Kurulum Adımları
 
 1. Repoyu klonlayın:
    ```bash

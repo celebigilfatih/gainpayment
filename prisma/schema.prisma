@@ -25,7 +25,8 @@ model Client {
   id              String    @id @default(cuid())
   fullName        String
   phoneNumber     String?
-  brokerageFirm   String?
+  city            String?
+  brokerageFirms  String    @default("[]") // JSON string array for multiple brokerage firms
   referralSource  String?
   notes           String?
   createdAt       DateTime  @default(now())
@@ -40,7 +41,9 @@ model Client {
 model Investment {
   id              String    @id @default(cuid())
   stockName       String
-  stockSymbol     String
+  brokerageFirm   String
+  stockSymbol     String    @default("")
+  acquisitionDate DateTime
   quantityLots    Float
   acquisitionCost Float
   currentValue    Float?

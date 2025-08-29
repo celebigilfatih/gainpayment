@@ -5,6 +5,7 @@ import { prisma } from '@/lib/db/prisma';
 import { authOptions } from '@/lib/auth/auth';
 import { formatCurrency } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default async function ClientsPage() {
   const session = await getServerSession(authOptions);
@@ -29,14 +30,19 @@ export default async function ClientsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Müşteriler</h1>
-        <Button asChild>
+        <Button asChild className="bg-black text-white hover:bg-gray-800">
           <Link href="/clients/new">Yeni Müşteri Ekle</Link>
         </Button>
       </div>
 
-      <div className="rounded-md border">
-        <div className="relative w-full overflow-auto">
-          <table className="w-full caption-bottom text-sm">
+      <Card>
+        <CardHeader>
+          <CardTitle>Müşteri Listesi</CardTitle>
+          <CardDescription>Portföyünüzdeki tüm müşteriler</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="relative w-full overflow-auto">
+            <table className="w-full caption-bottom text-sm">
             <thead className="[&_tr]:border-b">
               <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
                 <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
@@ -46,16 +52,16 @@ export default async function ClientsPage() {
                   Telefon
                 </th>
                 <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                  Aracı Kurum
+                  Şehir
                 </th>
                 <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                  Nakit Pozisyonu
+                  Aracı Kurum
                 </th>
                 <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
                   Yatırımlar
                 </th>
                 <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                  Toplam Lot
+                  Lot
                 </th>
                 <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
                   İşlemler
@@ -65,7 +71,7 @@ export default async function ClientsPage() {
             <tbody className="[&_tr:last-child]:border-0">
               {clients.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-4 text-center text-muted-foreground">
+                  <td colSpan={6} className="p-4 text-center text-muted-foreground">
                     Müşteri bulunamadı. Başlamak için ilk müşterinizi ekleyin.
                   </td>
                 </tr>
@@ -74,6 +80,7 @@ export default async function ClientsPage() {
                   id: string; 
                   fullName: string; 
                   phoneNumber: string | null; 
+                  city: string | null; 
                   brokerageFirm: string | null; 
                   cashPosition: number; 
                   investments: { 
@@ -101,9 +108,20 @@ export default async function ClientsPage() {
                       </Link>
                     </td>
                     <td className="p-4 align-middle">{client.phoneNumber || '-'}</td>
-                    <td className="p-4 align-middle">{client.brokerageFirm || '-'}</td>
+                    <td className="p-4 align-middle">{client.city || '-'}</td>
                     <td className="p-4 align-middle">
-                      {formatCurrency(client.cashPosition)}
+                      {(() => {
+                        try {
+                          // Eğer brokerageFirms varsa onu kullan, yoksa brokerageFirm'i dene
+                          const brokerageData = client.brokerageFirms || client.brokerageFirm;
+                          const brokerageFirms = brokerageData ? JSON.parse(brokerageData.toString() || '[]') : [];
+                          return Array.isArray(brokerageFirms) && brokerageFirms.length > 0 
+                            ? brokerageFirms.join(', ')
+                            : brokerageData || '-';
+                        } catch (e) {
+                          return client.brokerageFirm || '-';
+                        }
+                      })()}
                     </td>
                     <td className="p-4 align-middle">{client.investments.length}</td>
                     <td className="p-4 align-middle">
@@ -117,15 +135,19 @@ export default async function ClientsPage() {
                         <Button variant="outline" size="sm" asChild>
                           <Link href={`/clients/${client.id}/edit`}>Düzenle</Link>
                         </Button>
+                        <Button variant="outline" size="sm" className="text-red-600 hover:bg-red-50 hover:text-red-700" asChild>
+                          <Link href={`/clients/${client.id}/delete`}>Sil</Link>
+                        </Button>
                       </div>
                     </td>
                   </tr>
                 ))
               )}
             </tbody>
-          </table>
-        </div>
-      </div>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

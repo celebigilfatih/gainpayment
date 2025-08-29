@@ -13,7 +13,7 @@ type Transaction = {
   investment: {
     id: string;
     stockName: string;
-    stockSymbol: string;
+    brokerageFirm: string;
     client: {
       id: string;
       fullName: string;
@@ -49,7 +49,7 @@ export function RecentActivity({ transactions }: RecentActivityProps) {
                       href={`/investments/${transaction.investment.id}`}
                       className="font-medium hover:underline"
                     >
-                      {transaction.investment.stockName} ({transaction.investment.stockSymbol})
+                      {transaction.investment.stockName} ({transaction.investment.brokerageFirm})
                     </Link>
                     <p className="text-sm text-muted-foreground">
                       <Link 

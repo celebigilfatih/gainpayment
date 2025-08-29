@@ -26,7 +26,8 @@ export async function GET(request: NextRequest) {
           select: {
             id: true,
             stockName: true,
-            stockSymbol: true,
+            brokerageFirm: true,
+            acquisitionDate: true,
             client: {
               select: {
                 id: true,

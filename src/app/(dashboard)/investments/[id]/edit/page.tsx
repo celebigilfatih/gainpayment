@@ -86,7 +86,8 @@ export default function EditInvestmentPage({ params }: EditInvestmentPageProps) 
             investmentData={{
               id: investment.id,
               stockName: investment.stockName,
-              stockSymbol: investment.stockSymbol,
+              brokerageFirm: investment.brokerageFirm,
+              acquisitionDate: investment.acquisitionDate,
               quantityLots: investment.quantityLots,
               acquisitionCost: investment.acquisitionCost,
               currentValue: investment.currentValue,

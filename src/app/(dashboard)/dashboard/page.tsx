@@ -178,7 +178,7 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold">Pano</h1>
-        <Button asChild>
+        <Button asChild className="bg-black text-white hover:bg-gray-800">
           <Link href="/clients/new">Yeni Müşteri Ekle</Link>
         </Button>
       </div>

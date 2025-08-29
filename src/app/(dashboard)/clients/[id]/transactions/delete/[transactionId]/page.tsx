@@ -70,7 +70,7 @@ export default async function DeleteTransactionPage({ params }: DeleteTransactio
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-sm font-medium text-muted-foreground">Hisse Senedi</p>
-              <p>{transaction.investment.stockName} ({transaction.investment.stockSymbol})</p>
+              <p>{transaction.investment.stockName} ({transaction.investment.stockSymbol || transaction.investment.brokerageFirm})</p>
             </div>
             <div>
               <p className="text-sm font-medium text-muted-foreground">İşlem Tarihi</p>

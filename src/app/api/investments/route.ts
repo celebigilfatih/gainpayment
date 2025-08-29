@@ -50,13 +50,13 @@ export async function POST(request: NextRequest) {
 
   try {
     const data = await request.json();
-    const { clientId, stockName, stockSymbol, quantityLots, acquisitionCost, currentValue } = data;
+    const { clientId, stockName, stockSymbol, brokerageFirm, acquisitionDate, quantityLots, acquisitionCost, currentValue } = data;
 
     console.log('API received data:', data);
 
     // Validate required fields
-    if (!clientId || !stockName || !stockSymbol || quantityLots === undefined || acquisitionCost === undefined) {
-      console.log('Missing required fields:', { clientId, stockName, stockSymbol, quantityLots, acquisitionCost });
+    if (!clientId || !stockName || !brokerageFirm || !acquisitionDate || quantityLots === undefined || acquisitionCost === undefined) {
+      console.log('Missing required fields:', { clientId, stockName, brokerageFirm, acquisitionDate, quantityLots, acquisitionCost });
       return NextResponse.json(
         { message: 'Missing required fields' },
         { status: 400 }
@@ -83,7 +83,8 @@ export async function POST(request: NextRequest) {
     const investmentData = {
       clientId,
       stockName,
-      stockSymbol,
+      brokerageFirm,
+      acquisitionDate: new Date(acquisitionDate),
       quantityLots: parseFloat(quantityLots.toString()),
       acquisitionCost: parseFloat(acquisitionCost.toString()),
       currentValue: currentValue !== undefined ? parseFloat(currentValue.toString()) : undefined,

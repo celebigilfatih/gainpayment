@@ -38,11 +38,29 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
 
+    // Ensure brokerageFirms is properly formatted
+    let brokerageFirmsValue = '[]';
+    if (body.brokerageFirms) {
+      if (Array.isArray(body.brokerageFirms)) {
+        brokerageFirmsValue = JSON.stringify(body.brokerageFirms);
+      } else if (typeof body.brokerageFirms === 'string') {
+        // If it's already a string, check if it's a valid JSON string
+        try {
+          JSON.parse(body.brokerageFirms);
+          brokerageFirmsValue = body.brokerageFirms;
+        } catch {
+          // If not a valid JSON string, assume it's a single value and wrap it
+          brokerageFirmsValue = '[]';
+        }
+      }
+    }
+
     const client = await prisma.client.create({
       data: {
         fullName: body.fullName,
         phoneNumber: body.phoneNumber,
-        brokerageFirm: body.brokerageFirm,
+        city: body.city,
+        brokerageFirms: brokerageFirmsValue,
         referralSource: body.referralSource,
         notes: body.notes,
         cashPosition: body.cashPosition || 0,
@@ -53,6 +71,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(client);
   } catch (error) {
     console.error('Error creating client:', error);
-    return new NextResponse('Internal Server Error', { status: 500 });
+    // Daha detaylı hata mesajı
+    const errorMessage = error instanceof Error ? error.message : 'Internal Server Error';
+    return new NextResponse(errorMessage, { status: 500 });
   }
 }

@@ -60,6 +60,23 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       return new NextResponse('Client not found', { status: 404 });
     }
 
+    // Ensure brokerageFirms is properly formatted
+    let brokerageFirmsValue = '[]';
+    if (body.brokerageFirms) {
+      if (Array.isArray(body.brokerageFirms)) {
+        brokerageFirmsValue = JSON.stringify(body.brokerageFirms);
+      } else if (typeof body.brokerageFirms === 'string') {
+        // If it's already a string, check if it's a valid JSON string
+        try {
+          JSON.parse(body.brokerageFirms);
+          brokerageFirmsValue = body.brokerageFirms;
+        } catch {
+          // If not a valid JSON string, assume it's a single value and wrap it
+          brokerageFirmsValue = '[]';
+        }
+      }
+    }
+    
     const updatedClient = await prisma.client.update({
       where: {
         id: params.id,
@@ -67,7 +84,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       data: {
         fullName: body.fullName,
         phoneNumber: body.phoneNumber,
-        brokerageFirm: body.brokerageFirm,
+        city: body.city,
+        brokerageFirms: brokerageFirmsValue,
         referralSource: body.referralSource,
         notes: body.notes,
         cashPosition: body.cashPosition,

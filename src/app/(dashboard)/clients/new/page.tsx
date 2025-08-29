@@ -5,6 +5,7 @@ import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import { ClientForm } from '@/components/forms/client-form';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function NewClientPage() {
   const router = useRouter();
@@ -18,9 +19,15 @@ export default function NewClientPage() {
         </Button>
       </div>
 
-      <div className="rounded-md border p-6">
-        <ClientForm onSuccess={() => router.push('/clients')} />
-      </div>
+      <Card className="bg-white">
+        <CardHeader>
+          <CardTitle>Müşteri Bilgileri</CardTitle>
+          <CardDescription>Yeni müşteri bilgilerini doldurun</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ClientForm onSuccess={() => router.push('/clients')} />
+        </CardContent>
+      </Card>
     </div>
   );
 }

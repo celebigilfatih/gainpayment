@@ -84,6 +84,9 @@ export default async function ClientPage({ params }: ClientPageProps) {
           <Button variant="outline" asChild>
             <Link href={`/clients/${client.id}/edit`}>Müşteriyi Düzenle</Link>
           </Button>
+          <Button variant="outline" className="text-red-600 hover:bg-red-50 hover:text-red-700" asChild>
+            <Link href={`/clients/${client.id}/delete`}>Müşteriyi Sil</Link>
+          </Button>
           <Button variant="outline" asChild>
             <Link href="/clients">Müşterilere Dön</Link>
           </Button>
@@ -103,8 +106,36 @@ export default async function ClientPage({ params }: ClientPageProps) {
                 <p>{client.phoneNumber || 'Belirtilmemiş'}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Aracı Kurum</p>
-                <p>{client.brokerageFirm || 'Belirtilmemiş'}</p>
+                <p className="text-sm font-medium text-muted-foreground">Şehir</p>
+                <p>{client.city || 'Belirtilmemiş'}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Aracı Kurumlar</p>
+                <div>
+                  {(() => {
+                    try {
+                      // Eğer brokerageFirms varsa onu kullan, yoksa brokerageFirm'i dene
+                      const brokerageData = client.brokerageFirms || client.brokerageFirm;
+                      if (!brokerageData) return 'Belirtilmemiş';
+                      
+                      try {
+                        const brokerageFirms = JSON.parse(brokerageData.toString());
+                        if (Array.isArray(brokerageFirms) && brokerageFirms.length > 0) {
+                          return brokerageFirms.map((firm: string, index: number) => (
+                            <Badge key={index} className="mr-1 mb-1">{firm}</Badge>
+                          ));
+                        }
+                      } catch {
+                        // JSON parse başarısız olursa, muhtemelen eski format string'dir
+                        return <Badge className="mr-1 mb-1">{brokerageData}</Badge>;
+                      }
+                      
+                      return 'Belirtilmemiş';
+                    } catch (e) {
+                      return 'Belirtilmemiş';
+                    }
+                  })()} 
+                </div>
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Referans Kaynağı</p>
@@ -204,7 +235,10 @@ export default async function ClientPage({ params }: ClientPageProps) {
                       Hisse Senedi
                     </th>
                     <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
-                      Sembol
+                      Aracı Kurum
+                    </th>
+                    <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
+                      Alış Tarihi
                     </th>
                     <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground">
                       Miktar (Lot)
@@ -221,13 +255,14 @@ export default async function ClientPage({ params }: ClientPageProps) {
                   </tr>
                 </thead>
                 <tbody className="[&_tr:last-child]:border-0">
-                  {client.investments.map((investment: { id: string; stockName: string; stockSymbol: string; quantityLots: number; acquisitionCost: number; currentValue: number | null }) => (
+                  {client.investments.map((investment) => (
                     <tr
                       key={investment.id}
                       className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
                     >
                       <td className="p-4 align-middle">{investment.stockName}</td>
                       <td className="p-4 align-middle">{investment.stockSymbol}</td>
+                      <td className="p-4 align-middle">{formatDate(investment.createdAt)}</td>
                       <td className="p-4 align-middle">{investment.quantityLots}</td>
                       <td className="p-4 align-middle">
                         {formatCurrency(investment.acquisitionCost)}

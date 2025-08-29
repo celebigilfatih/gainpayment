@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -9,9 +9,77 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
+// Aracı kurumlar listesi
+const brokerageFirms = [
+  "ACAR MENKUL DEĞERLER A.Ş.",
+  "A1 CAPİTAL YATIRIM MENKUL DEĞERLER A.Ş.",
+  "ANADOLU YATIRIM MENKUL KIYMETLER A.Ş.",
+  "AK YATIRIM MENKUL DEĞERLER A.Ş.",
+  "ALB MENKUL DEĞERLER A.Ş.",
+  "ALAN YATIRIM MENKUL DEĞERLER A.Ş.",
+  "ALTERNATİF YATIRIM MENKUL DEĞERLER A.Ş.",
+  "ALNUS YATIRIM MENKUL DEĞERLER A.Ş.",
+  "ATA YATIRIM MENKUL KIYMETLER A.Ş.",
+  "AHLATCI YATIRIM MENKUL DEĞERLER A.Ş.",
+  "BAHAR MENKUL DEĞERLER TİCARETİ A.Ş.",
+  "BGC PARTNERS MENKUL DEĞERLER A.Ş.",
+  "BİZİM MENKUL DEĞERLER A.Ş.",
+  "CITI MENKUL DEĞERLER A.Ş.",
+  "CREDIT SUISSE İSTANBUL MENKUL DEĞERLER A.Ş.",
+  "DELTA MENKUL DEĞERLER A.Ş.",
+  "DİNAMİK MENKUL DEĞERLER A.Ş.",
+  "DEUTSCHE SECURITIES MENKUL DEĞERLER A.Ş.",
+  "DENİZ YATIRIM MENKUL KIYMETLER A.Ş.",
+  "BURGAN YATIRIM MENKUL DEĞERLER A.Ş.",
+  "QNB FİNANS YATIRIM MENKUL DEĞERLER A.Ş.",
+  "GCM YATIRIM MENKUL DEĞERLER A.Ş.",
+  "GEDİK YATIRIM MENKUL DEĞERLER A.Ş.",
+  "GLOBAL MENKUL DEĞERLER A.Ş.",
+  "ING MENKUL DEĞERLER A.Ş.",
+  "GARANTİ YATIRIM MENKUL KIYMETLER A.Ş.",
+  "HALK YATIRIM MENKUL DEĞERLER A.Ş.",
+  "HSBC YATIRIM MENKUL DEĞERLER A.Ş.",
+  "INVEST AZ YATIRIM MENKUL DEĞERLER A.Ş.",
+  "ICBC TURKEY YATIRIM MENKUL DEĞERLER A.Ş.",
+  "IKON MENKUL DEĞERLER A.Ş.",
+  "IŞIK MENKUL DEĞERLER A.Ş.",
+  "İNTEGRAL YATIRIM MENKUL DEĞERLER A.Ş.",
+  "İNFO YATIRIM MENKUL DEĞERLER A.Ş.",
+  "İŞ YATIRIM MENKUL DEĞERLER A.Ş.",
+  "MARBAŞ MENKUL DEĞERLER A.Ş.",
+  "MEKSA YATIRIM MENKUL DEĞERLER A.Ş.",
+  "MORGAN STANLEY MENKUL DEĞERLER A.Ş.",
+  "METRO YATIRIM MENKUL DEĞERLER A.Ş.",
+  "NOOR CAPİTAL MARKET MENKUL DEĞERLER A.Ş.",
+  "NETA MENKUL DEĞERLER A.Ş.",
+  "OSMANLI YATIRIM MENKUL DEĞERLER A.Ş.",
+  "OYAK YATIRIM MENKUL DEĞERLER A.Ş.",
+  "PAY MENKUL DEĞERLER A.Ş.",
+  "PHİLLİPCAPİTAL MENKUL DEĞERLER A.Ş.",
+  "PİRAMİT MENKUL KIYMETLER A.Ş.",
+  "PRİM MENKUL DEĞERLER A.Ş.",
+  "POLEN MENKUL DEĞERLER A.Ş.",
+  "REEL KAPİTAL MENKUL DEĞERLER A.Ş.",
+  "ŞEKER YATIRIM MENKUL DEĞERLER A.Ş.",
+  "SANKO YATIRIM MENKUL DEĞERLER A.Ş.",
+  "STRATEJİ MENKUL DEĞERLER A.Ş.",
+  "TACİRLER YATIRIM MENKUL DEĞERLER A.Ş.",
+  "TEB YATIRIM MENKUL DEĞERLER A.Ş.",
+  "TURKİSH YATIRIM MENKUL DEĞERLER A.Ş.",
+  "TERA YATIRIM MENKUL DEĞERLER A.Ş.",
+  "ÜNLÜ MENKUL DEĞERLER A.Ş.",
+  "VAKIF YATIRIM MENKUL DEĞERLER A.Ş.",
+  "VENBEY YATIRIM MENKUL DEĞERLER A.Ş.",
+  "YATIRIM FİNANSMAN MENKUL DEĞERLER A.Ş.",
+  "YAPI KREDİ YATIRIM MENKUL DEĞERLER A.Ş.",
+  "ZİRAAT YATIRIM MENKUL DEĞERLER A.Ş."
+];
+
 const investmentSchema = z.object({
   stockName: z.string().min(1, { message: 'Hisse senedi adı gereklidir' }),
-  stockSymbol: z.string().min(1, { message: 'Hisse senedi sembolü gereklidir' }),
+  stockSymbol: z.string().default(''),
+  brokerageFirm: z.string().min(1, { message: 'Aracı kurum gereklidir' }),
+  acquisitionDate: z.string().min(1, { message: 'Alış tarihi gereklidir' }),
   quantityLots: z.coerce
     .number()
     .min(0.01, { message: 'Miktar 0\'dan büyük olmalıdır' }),
@@ -39,16 +107,40 @@ export function InvestmentForm({
 }: InvestmentFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showBrokerageList, setShowBrokerageList] = useState(false);
+  const [filteredBrokerages, setFilteredBrokerages] = useState<string[]>([]);
+  
+  // Initialize filtered brokerages with all options
+  useEffect(() => {
+    setFilteredBrokerages(brokerageFirms);
+    
+    // Close dropdown lists when clicking outside
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('#brokerage-search') && !target.closest('#brokerage-dropdown')) {
+        setShowBrokerageList(false);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<InvestmentFormValues>({
     resolver: zodResolver(investmentSchema) as any,
     defaultValues: investmentData || {
       stockName: '',
       stockSymbol: '',
+      brokerageFirm: '',
+      acquisitionDate: new Date().toISOString().split('T')[0],
       quantityLots: undefined,
       acquisitionCost: undefined,
       currentValue: undefined,
@@ -132,14 +224,64 @@ export function InvestmentForm({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="stockSymbol">Hisse Senedi Sembolü *</Label>
+          <Label htmlFor="brokerageFirm">Aracı Kurum *</Label>
+          <div className="relative">
+            <Input
+              id="brokerage-search"
+              placeholder="Aracı kurum ara..."
+              className="bg-white text-black"
+              value={watch('brokerageFirm') || ''}
+              onChange={(e) => {
+                const searchValue = e.target.value.toLowerCase();
+                setFilteredBrokerages(
+                  brokerageFirms.filter(firm =>
+                    firm.toLowerCase().includes(searchValue)
+                  )
+                );
+                setValue('brokerageFirm', e.target.value);
+              }}
+              onClick={() => {
+                setShowBrokerageList(true);
+              }}
+              disabled={isSubmitting}
+            />
+            {showBrokerageList && (
+              <div id="brokerage-dropdown" className="absolute z-10 mt-1 w-full max-h-60 overflow-auto rounded-md border border-gray-200 bg-white shadow-lg">
+                <div className="p-2">
+                  {filteredBrokerages.length === 0 ? (
+                    <div className="py-2 px-2 text-sm text-gray-500">Aracı kurum bulunamadı</div>
+                  ) : (
+                    filteredBrokerages.map(firm => (
+                      <div
+                        key={firm}
+                        className="cursor-pointer py-2 px-2 text-sm hover:bg-gray-100 text-black rounded-md"
+                        onClick={() => {
+                          setValue('brokerageFirm', firm);
+                          setShowBrokerageList(false);
+                        }}
+                      >
+                        {firm}
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+          {errors.brokerageFirm && (
+            <p className="text-sm text-red-500">{errors.brokerageFirm.message}</p>
+          )}
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="acquisitionDate">Alış Tarihi *</Label>
           <Input
-            id="stockSymbol"
-            {...register('stockSymbol')}
-            placeholder="örn., ISCTR"
+            id="acquisitionDate"
+            type="date"
+            {...register('acquisitionDate')}
           />
-          {errors.stockSymbol && (
-            <p className="text-sm text-red-500">{errors.stockSymbol.message}</p>
+          {errors.acquisitionDate && (
+            <p className="text-sm text-red-500">{errors.acquisitionDate.message}</p>
           )}
         </div>
 

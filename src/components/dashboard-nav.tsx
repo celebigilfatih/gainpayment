@@ -17,19 +17,19 @@ export default function DashboardNav({ user }: DashboardNavProps) {
 
   const navItems = [
     {
-      name: 'Dashboard',
+      name: 'Ana Sayfa',
       href: '/dashboard',
     },
     {
-      name: 'Clients',
+      name: 'Müşteriler',
       href: '/clients',
     },
     {
-      name: 'Investments',
+      name: 'Yatırımlar',
       href: '/investments',
     },
     {
-      name: 'Transactions',
+      name: 'İşlemler',
       href: '/transactions',
     },
   ];
@@ -67,7 +67,7 @@ export default function DashboardNav({ user }: DashboardNavProps) {
             size="sm"
             onClick={() => signOut({ callbackUrl: '/login' })}
           >
-            Sign Out
+            Çıkış Yap
           </Button>
         </div>
       </div>

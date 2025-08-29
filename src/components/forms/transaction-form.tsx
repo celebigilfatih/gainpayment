@@ -32,7 +32,7 @@ type TransactionFormValues = z.infer<typeof transactionSchema>;
 
 interface TransactionFormProps {
   clientId: string;
-  investments: Array<{ id: string; stockName: string; stockSymbol: string }>;
+  investments: Array<{ id: string; stockName: string; brokerageFirm: string }>;
   preselectedInvestmentId?: string;
   transaction?: {
     id: string;
@@ -154,7 +154,7 @@ export function TransactionForm({
             <option value="">Yatırım seçin</option>
             {investments && investments.map((investment) => (
               <option key={investment.id} value={investment.id}>
-                {investment.stockName} ({investment.stockSymbol})
+                {investment.stockName} ({investment.brokerageFirm})
               </option>
             ))}
           </select>

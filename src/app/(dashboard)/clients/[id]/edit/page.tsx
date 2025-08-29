@@ -6,6 +6,7 @@ import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import { ClientForm } from '@/components/forms/client-form';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface EditClientPageProps {
   params: {
@@ -43,23 +44,25 @@ export default function EditClientPage({ params }: EditClientPageProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-12">
-        <div className="text-center">
+      <Card className="flex items-center justify-center p-12 bg-white">
+        <CardContent className="text-center">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent mx-auto"></div>
           <p className="mt-4">Müşteri bilgileri yükleniyor...</p>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     );
   }
 
   if (error) {
     return (
-      <div className="p-6 text-center">
-        <p className="text-red-500">{error}</p>
-        <Button className="mt-4" variant="outline" asChild>
-          <Link href="/clients">Müşterilere Dön</Link>
-        </Button>
-      </div>
+      <Card className="p-6 text-center bg-white">
+        <CardContent>
+          <p className="text-red-500">{error}</p>
+          <Button className="mt-4" variant="outline" asChild>
+            <Link href="/clients">Müşterilere Dön</Link>
+          </Button>
+        </CardContent>
+      </Card>
     );
   }
 
@@ -77,14 +80,20 @@ export default function EditClientPage({ params }: EditClientPageProps) {
         </div>
       </div>
 
-      <div className="rounded-md border p-6">
-        {client && (
-          <ClientForm 
-            clientData={client} 
-            onSuccess={() => router.push(`/clients/${params.id}`)} 
-          />
-        )}
-      </div>
+      <Card className="bg-white">
+        <CardHeader>
+          <CardTitle>Müşteri Bilgileri</CardTitle>
+          <CardDescription>Müşteri bilgilerini düzenleyin</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {client && (
+            <ClientForm 
+              clientData={client} 
+              onSuccess={() => router.push(`/clients/${params.id}`)} 
+            />
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
